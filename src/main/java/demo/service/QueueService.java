@@ -17,8 +17,8 @@ public class QueueService {
 	
 	@Scheduled(fixedDelay = 5000)
 	public void sender() {
-	    QueueObject ex = new QueueObject();	    
-	    rabbitTemplate.convertAndSend("test-queue",ex);
+	   // QueueObject ex = new QueueObject();	    
+	   // rabbitTemplate.convertAndSend("test-queue",ex);
 	  }
 	
 	@RabbitListener(queues = "test-queue")

@@ -22,15 +22,14 @@ import org.springframework.context.annotation.Configuration;
 public class QueueConfig {
 
 	public static final String TEST_EXCHANGE = "test-exchange";
-	public static final String TEST_QUEUE_NAME = "test-queue";
+	public static final String TEST_QUEUE_NAME = "test.queue";
 	public static final String TEST_ROUTING_KEY = "test";
 
 	@Bean
-	  public SimpleMessageConverter jackson2JsonMessageConverter() {
-	    return new SimpleMessageConverter();
-	  }
+	public SimpleMessageConverter jackson2JsonMessageConverter() {
+		return new SimpleMessageConverter();
+	}
 
-	
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
@@ -56,7 +55,7 @@ public class QueueConfig {
 		factory.setMessageConverter(jackson2JsonMessageConverter());
 		factory.setConcurrentConsumers(10);
 		factory.setMaxConcurrentConsumers(10);
-	
+
 		return factory;
 	}
 

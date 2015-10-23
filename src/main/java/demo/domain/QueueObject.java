@@ -1,32 +1,31 @@
 package demo.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-
-public class QueueObject implements Serializable  {
+public class QueueObject  {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private Date date = new Date();
+	private int id;
+	private String name;
 	
-	public QueueObject() {
-		
+	
+	public QueueObject(int id, String name) {
+		this.id = id;
+		this.name = name;
 	}
 	
-	public Date getDate() {
-		return date;
+	public int getId() {
+		return id;
 	}
 	
-	public void setDate(Date date) {
-		this.date = date;
+	public String getName() {
+		return name;
 	}
 
 	@Override
 	public String toString() {
-		return "ExampleObject [date=" + date + "]";
+		return "QueueObject [id=" + id + ", name=" + name + "]";
 	}
+
+    
 	
+		
 	
 }

@@ -7,7 +7,7 @@ import static demo.config.QueueConfig.TEST_ROUTING_KEY;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/direct")
 public class QueueController {
+
 	
 	@Autowired
-	private RabbitTemplate rabbitTemplate;
+	AmqpTemplate amqpTeamplte;
 	
 	@Autowired
 	private Environment environment;
@@ -33,14 +34,14 @@ public class QueueController {
 		}		
 		
 		for (int i =0 ; i < 100; i++) {
-			rabbitTemplate.convertAndSend(TEST_EXCHANGE, TEST_ROUTING_KEY, message);
+			amqpTeamplte.convertAndSend(TEST_EXCHANGE, TEST_ROUTING_KEY, message);
 		}
 		
 	}
 	
 	@RequestMapping("/receive")
 	public String receive() {
-		String message = (String)rabbitTemplate.receiveAndConvert(TEST_QUEUE_NAME);
+		String message = (String)amqpTeamplte.receiveAndConvert(TEST_QUEUE_NAME);
 		return MessageFormat.format("{0} > {1}", environment.getProperty("spring.rabbitmq.host"), message);
 	}
 }

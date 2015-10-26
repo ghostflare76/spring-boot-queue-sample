@@ -1,6 +1,8 @@
 package demo.domain;
 
-public class QueueObject  {
+import java.io.Serializable;
+
+public class QueueObject implements Serializable {
 	
 	private int id;
 	private String name;

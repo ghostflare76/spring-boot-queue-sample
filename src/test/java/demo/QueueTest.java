@@ -9,6 +9,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -16,11 +19,16 @@ import org.springframework.core.env.Environment;
 import demo.domain.QueueObject;
 
 public class QueueTest extends SpringBootQueueApplicationTests {
-
-	private final static int MAX_QUQUE = 100000;
+	
+	private static final Logger log = LoggerFactory.getLogger(QueueTest.class);
+	
+	private final static int MAX_QUQUE = 10;
 
 	@Autowired
 	RabbitTemplate rabbitTemplate;
+	
+	@Autowired
+	AmqpTemplate amqpTeamplte;
 
 	@Autowired
 	private Environment environment;
@@ -31,20 +39,23 @@ public class QueueTest extends SpringBootQueueApplicationTests {
 		AtomicInteger counter = new AtomicInteger();
 		for (int i = 0; i < MAX_QUQUE; i++) {
 			QueueObject ex = new QueueObject(counter.incrementAndGet(), "RabbitMq Spring JSON Sample");
-			rabbitTemplate.convertAndSend(TEST_QUEUE_NAME, ex.toString());
+			amqpTeamplte.convertAndSend(TEST_QUEUE_NAME, ex.toString());
 		}
-		long elapsedTime = System.currentTimeMillis() - start;
-		System.out.println("testSender elapsed time -> " + elapsedTime);
+		long elapsedTime = System.currentTimeMillis() - start;		
+		log.info("########testSender elapsed time -> {}" , elapsedTime);
 	}
 
 	@Test
 	public void testSingleReceive() {
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < MAX_QUQUE; i++) {
-			String message = (String)rabbitTemplate.receiveAndConvert(TEST_QUEUE_NAME);
+		
+		
+		System.out.println("Received: " + (String)rabbitTemplate.receiveAndConvert());
+		/*for (int i = 0; i < MAX_QUQUE; i++) {
+			String message = (String)amqpTeamplte.receiveAndConvert();
 			System.out.println(
 				MessageFormat.format("{0} > {1}", environment.getProperty("spring.rabbitmq.host"), message));
-		}
+		}*/
 		long elapsedTime = System.currentTimeMillis() - start;
 		System.out.println("testSingleReceive elapsed time -> " + elapsedTime);
 	}
@@ -83,7 +94,7 @@ public class QueueTest extends SpringBootQueueApplicationTests {
 		@Override
 		public void run() {
 			try {
-				String message = (String)rabbitTemplate.receiveAndConvert(TEST_QUEUE_NAME);
+				String message = (String)amqpTeamplte.receiveAndConvert(TEST_QUEUE_NAME);
 
 				System.out.println(MessageFormat.format("{0} : {1} > {2}", Thread.currentThread().getName(),
 					environment.getProperty("spring.rabbitmq.host"), message));

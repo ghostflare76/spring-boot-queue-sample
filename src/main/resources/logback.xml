@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE logback>
+<configuration>
+
+	
+
+<!-- 	<appender name="FLUENT"
+		class="ch.qos.logback.more.appenders.DataFluentAppender">
+		<tag>test</tag>
+		<label>normal</label>
+		<remoteHost>localhost</remoteHost>
+		<port>24224</port>
+		<maxQueueSize>20</maxQueueSize>
+	</appender> -->
+
+	<appender name="FLUENT"
+		class="demo.config.appender.FluentLogbackAppender">
+		<tag>fluentd</tag>
+		<label>test</label>
+		<remoteHost>172.20.54.151</remoteHost>
+		<port>24224</port>
+		<maxQueueSize>20</maxQueueSize>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%date{HH:mm:ss.SSS} [%thread] %-5level %logger{15}-%line %msg</pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+		  <pattern>%date %-5level %logger{15}-%line|%msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FLUENT"/>
+
+	</root>
+
+</configuration>

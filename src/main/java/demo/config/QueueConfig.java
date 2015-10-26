@@ -1,19 +1,17 @@
 package demo.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.support.converter.SimpleMessageConverter;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * DirectExchange 를 사용한 Spring RabbitMQ 설정 
  * @author cowboy76
  *
  */
@@ -21,41 +19,44 @@ import org.springframework.context.annotation.Configuration;
 @EnableRabbit
 public class QueueConfig {
 
-	public static final String TEST_EXCHANGE = "test-exchange";
-	public static final String TEST_QUEUE_NAME = "test.queue";
-	public static final String TEST_ROUTING_KEY = "test";
-
+	public static final String TEST_EXCHANGE = "fluentd_exchange";
+	public static final String TEST_QUEUE_NAME = "fluentd.queue";
+	public static final String TEST_ROUTING_KEY = "nginx.access";
+	
 	@Bean
-	public SimpleMessageConverter jackson2JsonMessageConverter() {
-		return new SimpleMessageConverter();
+	public Jackson2JsonMessageConverter  jackson2JsonMessageConverter() {
+		Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+	
+		return converter;
 	}
 
+	@Bean
+	public AmqpAdmin amqpAdmin() {		
+		return new RabbitAdmin(connectionFactory);
+	}
+	
 	@Autowired
 	private ConnectionFactory connectionFactory;
-
+	
 	@Bean
-	Queue queue() {
-		return new Queue(TEST_QUEUE_NAME, false);
-	}
+	public RabbitTemplate rabbitTemplate() {
+		RabbitTemplate template = new RabbitTemplate(connectionFactory);
+		//The routing key is set to the name of the queue by the broker for the default exchange.
+		template.setExchange(TEST_EXCHANGE);
+		template.setRoutingKey(TEST_ROUTING_KEY);
 
-	@Bean
-	DirectExchange exchange() {
-		return new DirectExchange(TEST_EXCHANGE);
-	}
-
-	@Bean
-	Binding binding(Queue queue, DirectExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(TEST_ROUTING_KEY);
+		template.setQueue(TEST_QUEUE_NAME);
+	//	template.setMessageConverter(jackson2JsonMessageConverter());
+		return template;
 	}
 
 	@Bean
 	public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
 		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
 		factory.setConnectionFactory(connectionFactory);
-		factory.setMessageConverter(jackson2JsonMessageConverter());
+	//	factory.setMessageConverter(jackson2JsonMessageConverter());
 		factory.setConcurrentConsumers(10);
 		factory.setMaxConcurrentConsumers(10);
-
 		return factory;
 	}
 
